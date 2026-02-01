@@ -6,9 +6,10 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <array>
+#include <cmath>
 
-const unsigned int width = 800;
-const unsigned int height = 800;
+const unsigned int width = 1920;
+const unsigned int height = 1920;
 
 // Function to convert 3D array to 2D graphical array
 std::array<float, 2> project(const std::array<float, 3>& point3D) {
@@ -50,23 +51,44 @@ std::array<float, 3> translate_z(std::array<float, 3> point, float dz) {
 	};
 }
 
+std::array<float, 3> rotate_xz(std::array<float, 3> point, float angle) {
+	float x = point[0];
+	float z = point[2];
+	float c = std::cos(angle);
+	float s = std::sin(angle);
+
+	// Rotate point
+	float x_prime = x * c - z * s;
+	float z_prime = x * s + z * c;
+	
+	point[0] = x_prime;
+	point[2] = z_prime;
+
+	return point;
+}
+
+void line(float p1, float p2) {
+	
+}
+
 int main() {
 	sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode({ width, height }), "3D Renderer");
 	const float FPS = 60.0f;
-	const float dt = 1 / FPS;
+	const float dt = 1.0f / FPS;
 	float dz = 1;
+	float angle = 0;
 	window->setFramerateLimit(FPS);
 
 	std::array<std::array<float, 3>, 8> points3D = {{
-		{ 0.5f, -0.5f, 0.5f },
-		{ 0.5f, 0.5f, 0.5f },
-		{ -0.5f, -0.5f, 0.5f },
-		{ -0.5f, 0.5f, 0.5f },
+		{ 0.25f, -0.25f, 0.25f },
+		{ 0.25f, 0.25f, 0.25f },
+		{ -0.25f, -0.25f, 0.25f },
+		{ -0.25f, 0.25f, 0.25f },
 
-		{ 0.5f, -0.5f, -0.5f },
-		{ 0.5f, 0.5f, -0.5f },
-		{ -0.5f, -0.5f, -0.5f },
-		{ -0.5f, 0.5f, -0.5f },
+		{ 0.25f, -0.25f, -0.25f },
+		{ 0.25f, 0.25f, -0.25f },
+		{ -0.25f, -0.25f, -0.25f },
+		{ -0.25f, 0.25f, -0.25f },
 	}};
 
 	while(window->isOpen()) {
@@ -83,10 +105,12 @@ int main() {
 
 		window->clear();
 
-		dz += 1 * dt;
+		// dz += 1 * dt;
+		angle += M_PI * dt;
 
 		for (std::array<float, 3>& point3D : points3D) {
-			std::array<float, 3> z_translated = translate_z(point3D, dz);
+			std::array<float, 3> rotated_point = rotate_xz(point3D, angle);
+			std::array<float, 3> z_translated = translate_z(rotated_point, dz);
 			std::array<float, 2> p2D = project(z_translated);
 			std::array<float, 2> translated = translate(p2D);
 
